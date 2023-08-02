@@ -1,0 +1,95 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class WeatherApp {
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("1. Get weather\n2. Get Wind Speed\n3. Get Pressure\n0. Exit");
+            System.out.print("Enter your choice: ");
+
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                String choice = br.readLine();
+
+                if (choice.equals("1")) {
+                    System.out.print("Enter the date (YYYY-MM-DD): ");
+                    String date = br.readLine();
+                    String weatherData = getWeatherData(date);
+                    if (weatherData != null) {
+                        int temperature = Integer.parseInt(weatherData);
+                        System.out.println("Temperature on " + date + ": " + temperature + "°C");
+                    } else {
+                        System.out.println("Error fetching weather data.");
+                    }
+                } else if (choice.equals("2")) {
+                    System.out.print("Enter the date (YYYY-MM-DD): ");
+                    String date = br.readLine();
+                    String weatherData = getWindSpeedData(date);
+                    if (weatherData != null) {
+                        double windSpeed = Double.parseDouble(weatherData);
+                        System.out.println("Wind Speed on " + date + ": " + windSpeed + " m/s");
+                    } else {
+                        System.out.println("Error fetching weather data.");
+                    }
+                } else if (choice.equals("3")) {
+                    System.out.print("Enter the date (YYYY-MM-DD): ");
+                    String date = br.readLine();
+                    String weatherData = getPressureData(date);
+                    if (weatherData != null) {
+                        double pressure = Double.parseDouble(weatherData);
+                        System.out.println("Pressure on " + date + ": " + pressure + " hPa");
+                    } else {
+                        System.out.println("Error fetching weather data.");
+                    }
+                } else if (choice.equals("0")) {
+                    System.out.println("Exiting the program.");
+                    break;
+                } else {
+                    System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String getWeatherData(String date) throws IOException {
+        String url = "https://api.example.com/weather?date=" + date + "&location=London";
+        return fetchDataFromAPI(url);
+    }
+
+    private static String getWindSpeedData(String date) throws IOException {
+        String url = "https://api.example.com/wind-speed?date=" + date + "&location=London";
+        return fetchDataFromAPI(url);
+    }
+
+    private static String getPressureData(String date) throws IOException {
+        String url = "https://api.example.com/pressure?date=" + date + "&location=London";
+        return fetchDataFromAPI(url);
+    }
+
+    private static String fetchDataFromAPI(String url) throws IOException {
+        URL apiUrl = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+        connection.setRequestMethod("GET");
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = reader.readLine()) != null) {
+                response.append(inputLine);
+            }
+            reader.close();
+
+            return response.toString();
+        } else {
+            return null;
+        }
+    }
+}
